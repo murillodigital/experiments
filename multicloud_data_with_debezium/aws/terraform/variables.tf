@@ -12,3 +12,7 @@ variable "db_name" {
   type = string
   default = "inventory"
 }
+
+variable "bastion_key_name" {
+  type = string
+}

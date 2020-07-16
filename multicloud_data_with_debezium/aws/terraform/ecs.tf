@@ -1,10 +1,10 @@
 
-resource "aws_iam_role" "fargate_iam_role" {
-  name               = "debezium_fargate_role"
-  assume_role_policy = data.aws_iam_policy_document.fargate_policy.json
+resource "aws_iam_role" "debezium_fargate_iam_role" {
+  name               = "murillodigital-debezium-fargate-iam-role"
+  assume_role_policy = data.aws_iam_policy_document.debezium_fargate_iam_policy.json
 }
 
-data "aws_iam_policy_document" "fargate_policy" {
+data "aws_iam_policy_document" "debezium_fargate_iam_policy" {
   statement {
     actions = ["sts:AssumeRole"]
 
@@ -15,13 +15,13 @@ data "aws_iam_policy_document" "fargate_policy" {
   }
 }
 
-resource "aws_iam_role_policy_attachment" "fargate_policy_attachment" {
-  role       = aws_iam_role.fargate_iam_role.id
+resource "aws_iam_role_policy_attachment" "debezium_fargate_iam_policy_attachment" {
+  role       = aws_iam_role.debezium_fargate_iam_role.id
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
 resource "aws_lb" "debezium_lb" {
-  name = "debeziumalb"
+  name = "murillodigitaldebeziumlb"
   subnets = [
     aws_default_subnet.default_az1.id,
     aws_default_subnet.default_az2.id,
@@ -29,7 +29,7 @@ resource "aws_lb" "debezium_lb" {
   ]
   load_balancer_type = "application"
   security_groups = [
-    aws_security_group.external_sg.id
+    aws_security_group.debezium_external_sg.id
   ]
 }
 
@@ -45,15 +45,15 @@ resource "aws_lb_listener" "debezium_listener" {
 }
 
 resource "aws_lb_target_group" "debezium_targets" {
-  name = "debezium-alb-tg"
+  name = "murillodigital-debezium-tg"
   port = 8083
   protocol = "HTTP"
   vpc_id = aws_default_vpc.default_vpc.id
   target_type = "ip"
 }
 
-resource "aws_ecs_cluster" "inventory_ecs" {
-  name = "inventory_ecs"
+resource "aws_ecs_cluster" "debezium_ecs" {
+  name = "murillodigital-debezium-ecs"
   capacity_providers = ["FARGATE"]
 }
 
@@ -62,25 +62,25 @@ resource "aws_cloudwatch_log_group" "debezium_log_group" {
 }
 
 resource "aws_ecs_task_definition" "debezium_task" {
-  family = "debezium_task"
+  family = "murillodigital-debezium-task-definitiojn"
   network_mode = "awsvpc"
   requires_compatibilities = ["FARGATE"]
   cpu = 512
   memory = 2048
   tags = {}
-  execution_role_arn = aws_iam_role.fargate_iam_role.arn
-  container_definitions = templatefile("./templates/task_definition.json.tpl", { bootstrap_servers = aws_msk_cluster.inventory_stream.bootstrap_brokers })
+  execution_role_arn = aws_iam_role.debezium_fargate_iam_role.arn
+  container_definitions = templatefile("./templates/task_definition.json.tpl", { bootstrap_servers = aws_msk_cluster.debezium_msk_cluster.bootstrap_brokers })
 }
 
 resource "aws_ecs_service" "debezium_service" {
-  name = "debezium_service"
-  cluster = aws_ecs_cluster.inventory_ecs.id
+  name = "murillodigital-debezium-service"
+  cluster = aws_ecs_cluster.debezium_ecs.id
   task_definition = aws_ecs_task_definition.debezium_task.arn
   desired_count = 1
   launch_type = "FARGATE"
 
   network_configuration {
-    security_groups = [aws_security_group.internal_sg.id]
+    security_groups = [aws_security_group.debezium_internal_sg.id]
     subnets = [aws_default_subnet.default_az1.id,aws_default_subnet.default_az2.id]
     assign_public_ip = true
   }
@@ -91,10 +91,3 @@ resource "aws_ecs_service" "debezium_service" {
     container_port = 8083
   }
 }
-
-//resource "null_resource" "create_debezium_connector" {
-//  depends_on = [aws_db_instance.inventory_psql]
-//  provisioner "local-exec" {
-//    command = "curl -i -X POST -H \"Accept:application/json\" -H \"Content-Type:application/json\" ${aws_ecs_service.debezium_service.}:8083/connectors/ --data '@./templates/psql-connector.json'"
-//  }
-//}

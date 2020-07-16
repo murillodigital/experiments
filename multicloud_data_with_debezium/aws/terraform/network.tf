@@ -13,13 +13,20 @@ resource "aws_default_subnet" "default_az3" {
   availability_zone = "us-east-1c"
 }
 
-resource "aws_security_group" "external_sg" {
-  name = "debezium_external"
+resource "aws_security_group" "debezium_external_sg" {
+  name = "murillodigital-debezium-external-sg"
   vpc_id = aws_default_vpc.default_vpc.id
 
   ingress {
     from_port = 80
     to_port = 80
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port = 22
+    to_port = 22
     protocol = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -32,8 +39,8 @@ resource "aws_security_group" "external_sg" {
   }
 }
 
-resource "aws_security_group" "internal_sg" {
-  name = "debezium_internal"
+resource "aws_security_group" "debezium_internal_sg" {
+  name = "murillodigital-debezium-internal-sg"
   vpc_id = aws_default_vpc.default_vpc.id
 
   ingress {
@@ -42,7 +49,6 @@ resource "aws_security_group" "internal_sg" {
     protocol = "tcp"
     self = true
   }
-
 
   ingress {
     from_port = 9092
@@ -55,7 +61,7 @@ resource "aws_security_group" "internal_sg" {
     from_port = 8083
     to_port = 8083
     protocol = "tcp"
-    security_groups = [aws_security_group.external_sg.id]
+    security_groups = [aws_security_group.debezium_external_sg.id]
   }
 
   egress {

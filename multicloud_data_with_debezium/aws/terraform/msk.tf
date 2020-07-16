@@ -3,8 +3,8 @@ resource "random_string" "unique_configuration_identifier" {
   special = false
 }
 
-resource "aws_kms_key" "kms" {
-  description = "inventory_key"
+resource "aws_kms_key" "debezium_kms_key" {
+  description = "murillodigital-debezium-kms-key"
 }
 
 resource "aws_msk_configuration" "debezium_msk_configuration" {
@@ -19,10 +19,10 @@ delete.topic.enable = true
 PROPERTIES
 }
 
-resource "aws_msk_cluster" "inventory_stream" {
-  cluster_name           = "inventorystream"
+resource "aws_msk_cluster" "debezium_msk_cluster" {
+  cluster_name           = "murillodigitaldebeziummsk"
   kafka_version          = "2.4.1"
-  number_of_broker_nodes = 3
+  number_of_broker_nodes = 2
 
   configuration_info {
     arn = aws_msk_configuration.debezium_msk_configuration.arn
@@ -34,15 +34,15 @@ resource "aws_msk_cluster" "inventory_stream" {
     ebs_volume_size = 10
     client_subnets = [
       aws_default_subnet.default_az1.id,
-      aws_default_subnet.default_az2.id,
-      aws_default_subnet.default_az3.id
+      aws_default_subnet.default_az2.id
     ]
     security_groups = [
-      aws_security_group.internal_sg.id]
+      aws_security_group.debezium_internal_sg.id
+    ]
   }
 
   encryption_info {
-    encryption_at_rest_kms_key_arn = aws_kms_key.kms.arn
+    encryption_at_rest_kms_key_arn = aws_kms_key.debezium_kms_key.arn
     encryption_in_transit {
       client_broker = "TLS_PLAINTEXT"
     }

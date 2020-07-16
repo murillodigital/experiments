@@ -1,5 +1,5 @@
-resource "aws_db_parameter_group" "debezium_parameters" {
-  name = "debeziumparams"
+resource "aws_db_parameter_group" "debezium_db_parameter_group" {
+  name = "murillodigitaldebeziumdbparams"
   family = "postgres12"
 
   parameter {
@@ -9,26 +9,32 @@ resource "aws_db_parameter_group" "debezium_parameters" {
   }
 }
 
-resource "aws_db_instance" "inventory_psql" {
+resource "aws_db_subnet_group" "debezium_db_subnet_group" {
+  name = "murillodigital-debezium-db-subnetgroup"
+  subnet_ids = [
+    aws_default_subnet.default_az1.id,
+    aws_default_subnet.default_az2.id,
+    aws_default_subnet.default_az3.id
+  ]
+}
+
+resource "aws_db_instance" "debezium_db" {
+  tags = {
+    name = "murillodigital-debezium-database"
+  }
   allocated_storage = 10
   instance_class = "db.t2.micro"
   engine = "postgres"
   engine_version = "12.3"
   username = var.db_username
   password = var.db_password
-  parameter_group_name = aws_db_parameter_group.debezium_parameters.name
+  parameter_group_name = aws_db_parameter_group.debezium_db_parameter_group.name
   skip_final_snapshot = true
   availability_zone = "us-east-1a"
   name = var.db_name
-  publicly_accessible = true
-}
-
-resource "null_resource" "create_inventory_db" {
-  depends_on = [aws_db_instance.inventory_psql]
-  provisioner "local-exec" {
-    command = "psql -h ${aws_db_instance.inventory_psql.address} -p 5432 -U \"${var.db_username}\" -d ${var.db_name} -f - \"${templatefile("./templates/initialize.sql.tpl", { table_name = var.db_name })}\""
-    environment = {
-      PGPASSWORD = var.db_password
-    }
-  }
+  publicly_accessible = false
+  db_subnet_group_name = aws_db_subnet_group.debezium_db_subnet_group.name
+  vpc_security_group_ids = [
+    aws_security_group.debezium_internal_sg.id
+  ]
 }
