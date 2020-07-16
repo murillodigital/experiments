@@ -1,6 +1,6 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
-CREATE TABLE IF NOT EXISTS inventory(
+CREATE TABLE IF NOT EXISTS ${table_name} (
     id uuid DEFAULT uuid_generate_v4 (),
     sku char(15) not null,
     name varchar(150) not null,

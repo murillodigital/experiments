@@ -2,8 +2,8 @@
   {
     "name": "debezium",
     "image": "debezium/connect:1.2",
-    "cpu": 256,
-    "memory": 512,
+    "cpu": 512,
+    "memory": 2048,
     "essential": true,
     "networkMode": "awsvpc",
     "mountPoints": [],
