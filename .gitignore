@@ -2,3 +2,4 @@
 .idea**
 .terraform**
 **.tfstate**
+account.json
