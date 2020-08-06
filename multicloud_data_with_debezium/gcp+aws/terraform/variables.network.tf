@@ -1,3 +1,23 @@
+variable "aws_vpc_id" {
+  type = string
+  description = "AWS VPC ID"
+}
+
+variable "aws_private_subnet1" {
+  type = string
+  description = "AWS ID for Private Subnet in AZ 1"
+}
+
+variable "aws_private_subnet2" {
+  type = string
+  description = "AWS ID for Private Subnet in AZ 2"
+}
+
+variable "aws_private_route_table" {
+  type = string
+  description = "AWS ID for the Private Route Table"
+}
+
 variable "gcp_region" {
   description = "Default to Oregon region."
   default     = "us-east1"

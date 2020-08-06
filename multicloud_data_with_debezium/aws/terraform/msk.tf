@@ -33,8 +33,8 @@ resource "aws_msk_cluster" "debezium_msk_cluster" {
     instance_type   = "kafka.t3.small"
     ebs_volume_size = 10
     client_subnets = [
-      aws_default_subnet.default_az1.id,
-      aws_default_subnet.default_az2.id
+      aws_subnet.debezium-subnet-az2-private.id,
+      aws_subnet.debezium-subnet-az3-private.id
     ]
     security_groups = [
       aws_security_group.debezium_internal_sg.id

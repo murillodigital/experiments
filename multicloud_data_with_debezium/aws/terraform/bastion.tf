@@ -39,7 +39,7 @@ resource "aws_instance" "debezium_bastion_host" {
   ami           = data.aws_ami.ubuntu.id
   instance_type = "t2.micro"
 
-  subnet_id = aws_default_subnet.default_az1.id
+  subnet_id = aws_subnet.debezium-subnet-az1-public.id
 
   key_name = var.bastion_key_name
 

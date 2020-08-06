@@ -12,9 +12,8 @@ resource "aws_db_parameter_group" "debezium_db_parameter_group" {
 resource "aws_db_subnet_group" "debezium_db_subnet_group" {
   name = "murillodigital-debezium-db-subnetgroup"
   subnet_ids = [
-    aws_default_subnet.default_az1.id,
-    aws_default_subnet.default_az2.id,
-    aws_default_subnet.default_az3.id
+    aws_subnet.debezium-subnet-az2-private.id,
+    aws_subnet.debezium-subnet-az3-private.id
   ]
 }
 
@@ -30,7 +29,7 @@ resource "aws_db_instance" "debezium_db" {
   password = var.db_password
   parameter_group_name = aws_db_parameter_group.debezium_db_parameter_group.name
   skip_final_snapshot = true
-  availability_zone = "us-east-1a"
+  availability_zone = aws_subnet.debezium-subnet-az2-private.availability_zone
   name = var.db_name
   publicly_accessible = false
   db_subnet_group_name = aws_db_subnet_group.debezium_db_subnet_group.name

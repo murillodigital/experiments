@@ -23,9 +23,10 @@ resource "aws_iam_role_policy_attachment" "debezium_fargate_iam_policy_attachmen
 resource "aws_lb" "debezium_lb" {
   name = "murillodigitaldebeziumlb"
   subnets = [
-    aws_default_subnet.default_az1.id,
-    aws_default_subnet.default_az2.id,
-    aws_default_subnet.default_az3.id
+    aws_subnet.debezium-subnet-az1-public.id,
+    aws_subnet.debezium-subnet-az2-private.id,
+    aws_subnet.debezium-subnet-az3-private.id,
+    aws_subnet.debezium-subnet-az4-public.id
   ]
   load_balancer_type = "application"
   security_groups = [
@@ -48,7 +49,7 @@ resource "aws_lb_target_group" "debezium_targets" {
   name = "murillodigital-debezium-tg"
   port = 8083
   protocol = "HTTP"
-  vpc_id = aws_default_vpc.default_vpc.id
+  vpc_id = aws_vpc.debezium-vpc.id
   target_type = "ip"
 }
 
@@ -81,7 +82,7 @@ resource "aws_ecs_service" "debezium_service" {
 
   network_configuration {
     security_groups = [aws_security_group.debezium_internal_sg.id]
-    subnets = [aws_default_subnet.default_az1.id,aws_default_subnet.default_az2.id]
+    subnets = [aws_subnet.debezium-subnet-az2-private.id, aws_subnet.debezium-subnet-az3-private.id]
     assign_public_ip = true
   }
 

@@ -16,6 +16,46 @@ resource "google_compute_address" "gcp-vpn-ip" {
   region = var.gcp_region
 }
 
+resource "google_compute_firewall" "gcp-bastion-firewall" {
+  network = google_compute_network.gcp-network.name
+  name = "murillodigital-bastion"
+
+  allow {
+    protocol = "tcp"
+    ports = ["22"]
+  }
+
+  direction = "INGRESS"
+  priority = 500
+  source_ranges = ["0.0.0.0/0"]
+  target_tags = ["murillodigital-debezium"]
+}
+
+resource "google_compute_instance" "gcp-bastion" {
+  name = "murillodigital-bastion"
+  machine_type = "n1-standard-1"
+  zone = "${var.gcp_region}-b"
+
+  boot_disk {
+    initialize_params {
+      image = "debian-cloud/debian-9"
+    }
+  }
+
+  scratch_disk {
+    interface = "SCSI"
+  }
+
+  network_interface {
+    network = google_compute_network.gcp-network.name
+    subnetwork = google_compute_subnetwork.gcp-subnet1.name
+    access_config { }
+  }
+
+  tags = [
+    "murillodigital-debezium"
+  ]
+}
 
 resource "google_compute_vpn_gateway" "gcp-vpn-gw" {
   name    = "gcp-vpn-gw-${var.gcp_region}"

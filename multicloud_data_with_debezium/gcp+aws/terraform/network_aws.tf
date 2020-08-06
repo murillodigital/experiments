@@ -1,8 +1,5 @@
-
-resource "aws_default_vpc" "default_vpc" { }
-
 resource "aws_vpn_gateway" "aws-vpn-gw" {
-  vpc_id = aws_default_vpc.default_vpc.id
+  vpc_id = var.aws_vpc_id
 }
 
 resource "aws_customer_gateway" "aws-cgw" {
@@ -22,4 +19,15 @@ resource "aws_vpn_connection" "aws-vpn-connection1" {
   tags = {
     "Name" = "aws-vpn-connection1"
   }
+}
+
+resource "aws_route" "aws-vpn-route" {
+  gateway_id = aws_vpn_gateway.aws-vpn-gw.id
+  destination_cidr_block = var.gcp_network_cidr
+  route_table_id = var.aws_private_route_table
+}
+
+resource "aws_vpn_gateway_route_propagation" "aws-vpn-route-propagation" {
+  vpn_gateway_id = aws_vpn_gateway.aws-vpn-gw.id
+  route_table_id = var.aws_private_route_table
 }
