@@ -18,6 +18,11 @@ variable "aws_private_route_table" {
   description = "AWS ID for the Private Route Table"
 }
 
+variable "aws_internal_sg" {
+  type = string
+  description = "AWS Internal Security Group ID"
+}
+
 variable "gcp_region" {
   description = "Default to Oregon region."
   default     = "us-east1"

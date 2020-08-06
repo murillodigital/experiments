@@ -115,58 +115,72 @@ resource "aws_route" "debezium-private-ng-route" {
 resource "aws_security_group" "debezium_external_sg" {
   name = "murillodigital-debezium-external-sg"
   vpc_id = aws_vpc.debezium-vpc.id
+}
 
-  ingress {
-    from_port = 80
-    to_port = 80
-    protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+resource "aws_security_group_rule" "debezium_external_sg_80" {
+  security_group_id = aws_security_group.debezium_external_sg.id
+  type = "ingress"
+  from_port = 80
+  to_port = 80
+  protocol = "tcp"
+  cidr_blocks = ["0.0.0.0/0"]
+}
 
-  ingress {
-    from_port = 22
-    to_port = 22
-    protocol = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+resource "aws_security_group_rule" "debezium_external_sg_22" {
+  security_group_id = aws_security_group.debezium_external_sg.id
+  type = "ingress"
+  from_port = 22
+  to_port = 22
+  protocol = "tcp"
+  cidr_blocks = ["0.0.0.0/0"]
+}
 
-  egress {
-    from_port = 0
-    protocol = "-1"
-    to_port = 0
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+resource "aws_security_group_rule" "debezium_external_sg_egress" {
+  security_group_id = aws_security_group.debezium_external_sg.id
+  type = "egress"
+  from_port = 0
+  protocol = "-1"
+  to_port = 0
+  cidr_blocks = ["0.0.0.0/0"]
 }
 
 resource "aws_security_group" "debezium_internal_sg" {
   name = "murillodigital-debezium-internal-sg"
   vpc_id = aws_vpc.debezium-vpc.id
+}
 
-  ingress {
-    from_port = 5432
-    to_port = 5432
-    protocol = "tcp"
-    self = true
-  }
+resource "aws_security_group_rule" "debezium_internal_sg_5432" {
+  security_group_id = aws_security_group.debezium_internal_sg.id
+  type = "ingress"
+  from_port = 5432
+  to_port = 5432
+  protocol = "tcp"
+  self = true
+}
 
-  ingress {
-    from_port = 9092
-    to_port = 9094
-    protocol = "tcp"
-    self = true
-  }
+resource "aws_security_group_rule" "debezium_internal_sg_9092-9094" {
+  security_group_id = aws_security_group.debezium_internal_sg.id
+  type = "ingress"
+  from_port = 9092
+  to_port = 9094
+  protocol = "tcp"
+  self = true
+}
 
-  ingress {
-    from_port = 8083
-    to_port = 8083
-    protocol = "tcp"
-    security_groups = [aws_security_group.debezium_external_sg.id]
-  }
+resource "aws_security_group_rule" "debezium_internal_sg_8083" {
+  security_group_id = aws_security_group.debezium_internal_sg.id
+  type = "ingress"
+  from_port = 8083
+  to_port = 8083
+  protocol = "tcp"
+  security_groups = [aws_security_group.debezium_external_sg.id]
+}
 
-  egress {
-    from_port = 0
-    protocol = "-1"
-    to_port = 0
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+resource "aws_security_group_rule" "debezium_internal_sg_egress" {
+  security_group_id = aws_security_group.debezium_internal_sg.id
+  type = "egress"
+  from_port = 0
+  protocol = "-1"
+  to_port = 0
+  cidr_blocks = ["0.0.0.0/0"]
 }
