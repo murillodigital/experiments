@@ -57,6 +57,17 @@ resource "google_compute_instance" "gcp-bastion" {
   ]
 }
 
+resource "google_compute_firewall" "gcp-bastion-icmp" {
+  name = "murillodigital-bastion-icmp"
+  network = google_compute_network.gcp-network.name
+
+  allow {
+    protocol = "icmp"
+  }
+
+  direction = "INGRESS"
+}
+
 resource "google_compute_vpn_gateway" "gcp-vpn-gw" {
   name    = "gcp-vpn-gw-${var.gcp_region}"
   network = google_compute_network.gcp-network.name

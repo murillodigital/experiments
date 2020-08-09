@@ -18,6 +18,11 @@ variable "aws_private_route_table" {
   description = "AWS ID for the Private Route Table"
 }
 
+variable "aws_public_route_table" {
+  type = string
+  description = "AWS ID for the Public Route Table"
+}
+
 variable "aws_internal_sg" {
   type = string
   description = "AWS Internal Security Group ID"

@@ -21,13 +21,33 @@ resource "aws_vpn_connection" "aws-vpn-connection1" {
   }
 }
 
-resource "aws_route" "aws-vpn-route" {
+resource "aws_route" "aws-vpn-private-route" {
   gateway_id = aws_vpn_gateway.aws-vpn-gw.id
   destination_cidr_block = var.gcp_network_cidr
   route_table_id = var.aws_private_route_table
 }
 
-resource "aws_vpn_gateway_route_propagation" "aws-vpn-route-propagation" {
+resource "aws_vpn_gateway_route_propagation" "aws-vpn-private-route-propagation" {
   vpn_gateway_id = aws_vpn_gateway.aws-vpn-gw.id
   route_table_id = var.aws_private_route_table
+}
+
+resource "aws_route" "aws-vpn-public-route" {
+  gateway_id = aws_vpn_gateway.aws-vpn-gw.id
+  destination_cidr_block = var.gcp_network_cidr
+  route_table_id = var.aws_public_route_table
+}
+
+resource "aws_vpn_gateway_route_propagation" "aws-vpn-public-route-propagation" {
+  vpn_gateway_id = aws_vpn_gateway.aws-vpn-gw.id
+  route_table_id = var.aws_public_route_table
+}
+
+resource "aws_security_group_rule" "debezium_internal_sg_vpn_9092-9094" {
+  security_group_id = var.aws_internal_sg
+  type = "ingress"
+  from_port = 9092
+  to_port = 9094
+  protocol = "tcp"
+  cidr_blocks = [var.gcp_network_cidr]
 }

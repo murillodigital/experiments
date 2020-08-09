@@ -135,11 +135,20 @@ resource "aws_security_group_rule" "debezium_external_sg_22" {
   cidr_blocks = ["0.0.0.0/0"]
 }
 
+resource "aws_security_group_rule" "debezium_external_icmp" {
+  security_group_id = aws_security_group.debezium_external_sg.id
+  type = "ingress"
+  from_port = -1
+  to_port = -1
+  protocol = "icmp"
+  cidr_blocks = ["0.0.0.0/0"]
+}
+
 resource "aws_security_group_rule" "debezium_external_sg_egress" {
   security_group_id = aws_security_group.debezium_external_sg.id
   type = "egress"
   from_port = 0
-  protocol = "-1"
+  protocol = -1
   to_port = 0
   cidr_blocks = ["0.0.0.0/0"]
 }
@@ -173,14 +182,23 @@ resource "aws_security_group_rule" "debezium_internal_sg_8083" {
   from_port = 8083
   to_port = 8083
   protocol = "tcp"
-  security_groups = [aws_security_group.debezium_external_sg.id]
+  source_security_group_id = aws_security_group.debezium_external_sg.id
+}
+
+resource "aws_security_group_rule" "debezium_internal_icmp" {
+  security_group_id = aws_security_group.debezium_internal_sg.id
+  type = "ingress"
+  from_port = -1
+  to_port = -1
+  protocol = "icmp"
+  cidr_blocks = ["0.0.0.0/0"]
 }
 
 resource "aws_security_group_rule" "debezium_internal_sg_egress" {
   security_group_id = aws_security_group.debezium_internal_sg.id
   type = "egress"
   from_port = 0
-  protocol = "-1"
+  protocol = -1
   to_port = 0
   cidr_blocks = ["0.0.0.0/0"]
 }

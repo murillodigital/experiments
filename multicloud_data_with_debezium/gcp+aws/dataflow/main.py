@@ -89,11 +89,10 @@ def run(bootstrap_servers, topic, project, dataset, table):
                     "group_id": "debezium_consumer_group"}
 
     mapping_schema = {
-        "sku": lambda data: data.payload.after.id if data.payload.op != 'd' else data.payload.before.id,
+        "sku": lambda data: data.payload.after.sku if data.payload.op != 'd' else data.payload.before.sku,
         "name": lambda data: data.payload.after.name if data.payload.op != 'd' else data.payload.before.name,
-        "price": lambda data: data.payload.after.weight if data.payload.op != 'd' else data.payload.before.weight,
-        "quantity": lambda data: int(
-            data.payload.after.weight if data.payload.op != 'd' else data.payload.before.weight),
+        "price": lambda data: data.payload.after.price if data.payload.op != 'd' else data.payload.before.price,
+        "quantity": lambda data: data.payload.after.available if data.payload.op != 'd' else data.payload.before.available,
         "timestamp": lambda data: datetime.datetime.utcfromtimestamp(data.payload.ts_ms / 1000).isoformat(),
         "deleted": lambda data: True if data.payload.op == 'd' else False
     }
