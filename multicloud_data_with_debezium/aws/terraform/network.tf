@@ -15,6 +15,7 @@ resource "aws_subnet" "debezium-subnet-az1-public" {
   vpc_id = aws_vpc.debezium-vpc.id
   cidr_block = "10.100.1.0/24"
   availability_zone = data.aws_availability_zones.available.names[0]
+  map_public_ip_on_launch = true
 
   tags = {
     Name = "debezium-subnet-az1-public"
@@ -45,6 +46,7 @@ resource "aws_subnet" "debezium-subnet-az4-public" {
   vpc_id = aws_vpc.debezium-vpc.id
   cidr_block = "10.100.4.0/24"
   availability_zone = data.aws_availability_zones.available.names[3]
+  map_public_ip_on_launch = true
 
   tags = {
     Name = "debezium-subnet-az4-public"

@@ -44,7 +44,7 @@ output "aws_public_route_table" {
   value = aws_route_table.debezium-route-table-public.id
 }
 
-output "aws_private_route_tabel" {
+output "aws_private_route_table" {
   value = aws_route_table.debezium-route-table-private.id
 }
 

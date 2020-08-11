@@ -36,8 +36,7 @@ class Generic(object):
 
 
 class TransformSchema(beam.DoFn):
-    def __init__(self, mapping_schema=dict(), *unused_args, **unused_kwargs):
-        super().__init__(*unused_args, **unused_kwargs)
+    def __init__(self, mapping_schema=dict()):
         self.mapping_schema = mapping_schema
 
     def transform_data(self, data):
@@ -56,17 +55,13 @@ class TransformSchema(beam.DoFn):
 
 
 class Printer(beam.DoFn):
-    def __init__(self, *unused_args, **unused_kwargs):
-        super().__init__(*unused_args, **unused_kwargs)
-
     def process(self, data):
         logging.info("Data in the pipeline: {}".format(data))
         return data
 
 
 class WriteToBigQuery(beam.DoFn):
-    def __init__(self, dataset, project, table, *unused_args, **unused_kwargs):
-        super().__init__(*unused_args, **unused_kwargs)
+    def __init__(self, dataset, project, table):
         self.dataset = dataset
         self.project = project
         self.table = table
@@ -114,7 +109,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--bootstrap-servers', dest='bootstrap_servers', required=True)
     parser.add_argument('--topic', dest='topic', required=True)
-    parser.add_argument('--project', dest='project', required=True)
+    parser.add_argument('--gcp_project', dest='project', required=True)
     parser.add_argument('--dataset', dest='dataset', required=True)
     parser.add_argument('--table', dest='table', required=True)
 

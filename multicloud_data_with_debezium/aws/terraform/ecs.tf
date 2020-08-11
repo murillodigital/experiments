@@ -83,7 +83,7 @@ resource "aws_ecs_service" "debezium_service" {
   network_configuration {
     security_groups = [aws_security_group.debezium_internal_sg.id]
     subnets = [aws_subnet.debezium-subnet-az2-private.id, aws_subnet.debezium-subnet-az3-private.id]
-    assign_public_ip = true
+    assign_public_ip = false
   }
 
   load_balancer {
