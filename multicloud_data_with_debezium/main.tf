@@ -7,14 +7,14 @@ provider "aws" {
 }
 
 module "aws" {
-  source = "aws/terraform"
+  source = "./aws/terraform"
   bastion_key_name = var.bastion_key_name
 }
 
 module "gcp_aws" {
-  source = "gcp+aws/terraform"
+  depends_on = [module.aws]
+  source = "./gcp+aws/terraform"
   aws_internal_sg = module.aws.aws_internal_sg
-  aws_lb = module.aws.aws_lb
   aws_private_route_table = module.aws.aws_private_route_table
   aws_private_subnet1 = module.aws.aws_private_subnet1
   aws_private_subnet2 = module.aws.aws_private_subnet2

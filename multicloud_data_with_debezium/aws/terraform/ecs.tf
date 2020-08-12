@@ -70,7 +70,7 @@ resource "aws_ecs_task_definition" "debezium_task" {
   memory = 2048
   tags = {}
   execution_role_arn = aws_iam_role.debezium_fargate_iam_role.arn
-  container_definitions = templatefile("./templates/task_definition.json.tpl", { bootstrap_servers = aws_msk_cluster.debezium_msk_cluster.bootstrap_brokers })
+  container_definitions = templatefile("${path.module}/templates/task_definition.json.tpl", { bootstrap_servers = aws_msk_cluster.debezium_msk_cluster.bootstrap_brokers })
 }
 
 resource "aws_ecs_service" "debezium_service" {

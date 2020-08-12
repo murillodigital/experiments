@@ -15,14 +15,14 @@ data "aws_ami" "ubuntu" {
 }
 
 data "template_file" "debezium_sql_initializer" {
-  template = file("./templates/initialize.sql.tpl")
+  template = file("${path.module}/templates/initialize.sql.tpl")
   vars = {
     table_name = var.db_name
   }
 }
 
 data "template_file" "connector_initializer" {
-  template = file("./templates/psql-connector.json.tpl")
+  template = file("${path.module}/templates/psql-connector.json.tpl")
   vars = {
     database_hostname = aws_db_instance.debezium_db.address
     database_user = var.db_username
