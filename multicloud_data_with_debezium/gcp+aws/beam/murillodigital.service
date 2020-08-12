@@ -1,0 +1,19 @@
+[Unit]
+Description=murillodigital
+After=syslog.target network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/root/experiments/multicloud_data_with_debezium/gcp+aws/beam
+ExectStart=/root/experiments/multicloud_data_with_debezium/gcp+aws/beam/bin/python \
+    /root/experiments/multicloud_data_with_debezium/gcp+aws/beam/main.py \
+    --bootstrap-server ${BOOTSTRAP_SERVERS} --topic ${KAFKA_TOPIC} \
+    --gcp_project ${GCP_PROJECT} \
+    --dataset ${DATASET} \
+    --table ${TABLE}
+Restart=on-failure
+EnvironmentFile=/root/murillodigital.env
+
+[Install]
+WantedBy=multi-user.target

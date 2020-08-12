@@ -1,1 +1,0 @@
-bastion_key_name = "lmurillo-aws"

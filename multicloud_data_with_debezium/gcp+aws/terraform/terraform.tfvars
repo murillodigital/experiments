@@ -1,7 +1,0 @@
-aws_internal_sg = "sg-009f8a03a9f529f06"
-aws_lb = "murillodigitaldebeziumlb-1660847395.us-east-1.elb.amazonaws.com"
-aws_private_route_table = "rtb-029184f72bb8f8f79"
-aws_private_subnet1 = "subnet-0646077f08845faea"
-aws_private_subnet2 = "subnet-0b14f4e9ebf44653f"
-aws_public_route_table = "rtb-08760ac168e84bc32"
-aws_vpc_id = "vpc-0edb0ac43e8e56705"

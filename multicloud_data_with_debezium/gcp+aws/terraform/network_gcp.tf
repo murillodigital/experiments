@@ -31,31 +31,6 @@ resource "google_compute_firewall" "gcp-bastion-firewall" {
   target_tags = ["murillodigital-debezium"]
 }
 
-resource "google_compute_instance" "gcp-bastion" {
-  name = "murillodigital-bastion"
-  machine_type = "n1-standard-1"
-  zone = "${var.gcp_region}-b"
-
-  boot_disk {
-    initialize_params {
-      image = "debian-cloud/debian-9"
-    }
-  }
-
-  scratch_disk {
-    interface = "SCSI"
-  }
-
-  network_interface {
-    network = google_compute_network.gcp-network.name
-    subnetwork = google_compute_subnetwork.gcp-subnet1.name
-    access_config { }
-  }
-
-  tags = [
-    "murillodigital-debezium"
-  ]
-}
 
 resource "google_compute_firewall" "gcp-bastion-icmp" {
   name = "murillodigital-bastion-icmp"
