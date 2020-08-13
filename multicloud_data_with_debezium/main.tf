@@ -21,5 +21,5 @@ module "gcp_aws" {
   aws_public_route_table = module.aws.aws_public_route_table
   aws_vpc_id = module.aws.aws_vpc_id
   bootstrap_servers = module.aws.aws_brokers_cleartext
-  kafka_topic = "inventory.inventory.products"
+  kafka_topic = "debezium_multicloud.public.inventory"
 }

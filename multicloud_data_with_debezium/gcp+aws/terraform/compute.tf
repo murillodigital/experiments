@@ -29,9 +29,10 @@ resource "google_compute_instance" "murillodigital-beam" {
 apt update
 apt install -y git python3-pip python3-venv
 git clone https://github.com/murillodigital/experiments /root/experiments
-python3 -m venv /root/experimens/multicloud_data_with_debezium/gcp+aws/beam
-pushd /root/experimens/multicloud_data_with_debezium/gcp+aws/beam
+python3 -m venv /root/experiments/multicloud_data_with_debezium/gcp+aws/beam
+pushd /root/experiments/multicloud_data_with_debezium/gcp+aws/beam
 . bin/activate
+pip install wheel
 pip install -r requirements.txt
 popd
 echo "BOOTSTRAP_SERVERS=${var.bootstrap_servers}" >> /root/murillodigital.env

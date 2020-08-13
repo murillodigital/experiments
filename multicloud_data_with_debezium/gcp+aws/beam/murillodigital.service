@@ -6,7 +6,7 @@ After=syslog.target network.target
 Type=simple
 User=root
 WorkingDirectory=/root/experiments/multicloud_data_with_debezium/gcp+aws/beam
-ExectStart=/root/experiments/multicloud_data_with_debezium/gcp+aws/beam/bin/python \
+ExecStart=/root/experiments/multicloud_data_with_debezium/gcp+aws/beam/bin/python \
     /root/experiments/multicloud_data_with_debezium/gcp+aws/beam/main.py \
     --bootstrap-server ${BOOTSTRAP_SERVERS} --topic ${KAFKA_TOPIC} \
     --gcp_project ${GCP_PROJECT} \
