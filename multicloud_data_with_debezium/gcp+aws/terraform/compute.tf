@@ -4,6 +4,9 @@ resource "google_compute_instance" "murillodigital-beam" {
   name = "murillodigital-beam"
   machine_type = "n1-standard-1"
   zone = "${var.gcp_region}-b"
+  service_account {
+    scopes = ["bigquery"]
+  }
 
   boot_disk {
     initialize_params {
@@ -31,6 +34,9 @@ echo "KAFKA_TOPIC=${var.kafka_topic}" >> /root/murillodigital.env
 echo "GCP_PROJECT=${data.google_project.project.name}" >> /root/murillodigital.env
 echo "DATASET=${var.dataset_name}" >> /root/murillodigital.env
 echo "TABLE=${var.table_name}" >> /root/murillodigital.env
+cp /root/experiments/multicloud_data_with_debezium/gcp+aws/beam/murillodigital.service /etc/systemd/system/murillodigital.service
+chmod 644 /etc/systemd/system/murillodigital.service
+systemctl start murillodigital
 EOF
 
   tags = [
