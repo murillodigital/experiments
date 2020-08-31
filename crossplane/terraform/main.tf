@@ -114,7 +114,7 @@ resource "google_project_iam_member" "murillodigital-crossplane-sqlrole" {
   member = "serviceAccount:${google_service_account.murillodigital-crossplane-sa.email}"
 }
 
-resource "google_project_iam_member" "murillodigital-crossplane-sqlrole" {
+resource "google_project_iam_member" "murillodigital-crossplane-pubsubrole" {
   project = var.project_id
   role = "roles/pubsub.admin"
   member = "serviceAccount:${google_service_account.murillodigital-crossplane-sa.email}"

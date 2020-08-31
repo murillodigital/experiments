@@ -72,3 +72,13 @@ PROVIDER_NAME=provider-gcp
 
 echo "Installing GCP package for crossplane - this installs GCP resource CRDs"
 kubectl crossplane package install --cluster --namespace crossplane-system ${PROVIDER_PACKAGE} ${PROVIDER_NAME}
+
+echo "Adding GCP Provider Secret"
+kubectl create secret generic gcp-creds -n crossplane-system --from-file=key=./terraform/sa.json
+
+template=$(cat "./kubernetes/gcp-provider.yaml" | sed "s/#PROJECTNAME#/${project}/g")
+echo "${template}" | kubectl apply -f -
+
+echo "Installing OAM Kubernetes Runtime"
+helm install oam --namespace oam-system crossplane-master/oam-kubernetes-runtime --devel --create-namespace
+
