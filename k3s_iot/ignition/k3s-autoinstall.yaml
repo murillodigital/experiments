@@ -1,0 +1,82 @@
+variant: fcos
+version: 1.0.0
+systemd:
+  units:
+  - name: getty@tty1.service
+    dropins:
+    - name: autologin-core.conf
+      contents: |
+        [Service]
+        ExecStart=
+        ExecStart=-/usr/sbin/agetty --autologin core --noclear %I $TERM
+  - name: run-k3s-prereq-installer.service
+    enabled: true
+    contents: |
+      [Unit]
+      After=network-online.target
+      Wants=network-online.target
+      Before=systemd-user-sessions.service
+      OnFailure=emergency.target
+      OnFailureJobMode=replace-irreversibly
+      ConditionPathExists=!/var/lib/k3s-prereq-installed
+      [Service]
+      RemainAfterExit=yes
+      Type=oneshot
+      ExecStart=/usr/local/bin/run-k3s-prereq-installer
+      ExecStartPost=/usr/bin/touch /var/lib/k3s-prereq-installed
+      ExecStartPost=/usr/bin/systemctl --no-block reboot
+      StandardOutput=kmsg+console
+      StandardError=kmsg+console
+      [Install]
+      WantedBy=multi-user.target
+  - name: run-k3s-installer.service
+    enabled: true
+    contents: |
+      [Unit]
+      After=network-online.target
+      Wants=network-online.target
+      Before=systemd-user-sessions.service
+      OnFailure=emergency.target
+      OnFailureJobMode=replace-irreversibly
+      ConditionPathExists=/var/lib/k3s-prereq-installed
+      ConditionPathExists=!/var/lib/k3s-installed
+      [Service]
+      RemainAfterExit=yes
+      Type=oneshot
+      ExecStart=/usr/local/bin/run-k3s-installer
+      ExecStartPost=/usr/bin/touch /var/lib/k3s-installed
+      StandardOutput=kmsg+console
+      StandardError=kmsg+console
+      [Install]
+      WantedBy=multi-user.target
+storage:
+  files:
+    - path: /usr/local/bin/run-k3s-prereq-installer
+      mode: 0755
+      contents:
+        inline: |
+          #!/usr/bin/env sh
+          main() {
+            rpm-ostree install https://rpm.rancher.io/k3s-selinux-0.1.1-rc1.el7.noarch.rpm
+            return 0
+          }
+          main
+    - path: /usr/local/bin/run-k3s-installer
+      mode: 0755
+      contents:
+        inline: |
+          #!/usr/bin/env sh
+          main() {
+            export K3S_KUBECONFIG_MODE="644"
+            export INSTALL_K3S_EXEC=" --no-deploy servicelb --no-deploy traefik"
+
+            curl -sfL https://get.k3s.io | sh -
+            return 0
+          }
+          main
+passwd:
+  users:
+    - name: core
+      ssh_authorized_keys:
+        - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCerzGGXd3Dg0Y4KDu8eIoGAGk+GdHJGWB6ye4p0AVBbWPbeSDS9yGh9iH3uA44YFhgqdkibHwDg3h/prXN//pcXkOlH53fotglMWY2OefF37gp/Q6FgNZ4sCeGjPU5Wtu2pzN+xbItolRAYmk+ePlezoawnRQdZeQnNjSEvdRE7dppS1WpvJXWx7Uhk5088iZsjrcfMIa2ZKz76jod5CvlDwAb1EkJGmojB5y/DWZI4s//mmgjW/XSSzncxUC7pbrrQ4MLGlz86a0VBzyz3B776p8NFf2yGr3FkVf1zpA00RJ8Oka7whJqXyKkTFmMstQg1ReeFbla68Rlp+TlIsKNx8BWXCDTqEO6jOhRhkhCHRWnGthpZa6YGX67ala4NHLyR7TZJJX95nff0EPd2uB5lr19vjB65+bd/tmkcAK7VT3SMxO9jgngYl4+8g06uUI9OZmpH49bHeoHdmybKeu+AtIaImtFZFnQgXau++Nzq730jenTinR+a5viZ+iP7M8= leonardo@devops.cr
+

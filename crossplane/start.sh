@@ -18,14 +18,13 @@ if [ -z ${credentials+x} ]; then
   exit 1
 fi
 
-CROSSPLANE_VERSION=0.13.0-rc.63.gfe3c371
 CLOUDSDK_CORE_PROJECT=${project}
 export GOOGLE_CLOUD_KEYFILE_JSON=${credentials}
 GOOGLE_APPLICATION_CREDENTIALS=${GOOGLE_CLOUD_KEYFILE_JSON}
 
 echo "Authenticating with credentials file: ${GOOGLE_CLOUD_KEYFILE_JSON}"
 
-required_services=(compute.googleapis.com container.googleapis.com cloudresourcemanager.googleapis.com sqladmin.googleapis.com pubsub.googleapis.com)
+required_services=(compute.googleapis.com container.googleapis.com cloudresourcemanager.googleapis.com sqladmin.googleapis.com pubsub.googleapis.com redis.googleapis.com)
 
 for service in "${required_services[@]}"; do
   if gcloud services list | grep "${service}" 2>&1 > /dev/null; then
@@ -61,8 +60,8 @@ echo "Getting credentials for newly created cluster"
 gcloud container clusters get-credentials murillodigital-crossplane --region us-east1
 
 echo "Adding the Crosplane Helm Chart repository and installing it on our new kubernetes cluster."
-helm repo add crossplane-master https://charts.crossplane.io/master/
-helm install crosplane --namespace crossplane-system crossplane-master/crossplane --version ${CROSSPLANE_VERSION} --devel --create-namespace
+helm repo add crossplane-alpha https://charts.crossplane.io/alpha
+helm install crossplane --namespace crossplane-system crossplane-alpha/crossplane --create-namespace
 
 echo "Install kubectl crossplane cli commands - this will require sudo rights"
 curl -sL https://raw.githubusercontent.com/crossplane/crossplane-cli/master/bootstrap.sh | sudo bash
@@ -76,6 +75,8 @@ kubectl crossplane package install --cluster --namespace crossplane-system ${PRO
 echo "Adding GCP Provider Secret"
 kubectl create secret generic gcp-creds -n crossplane-system --from-file=key=./terraform/sa.json
 
+echo "Creating GCP Provider - must sleep 10 seconds before attempting to let crossplane CRDs to settle"
+sleep 10
 template=$(cat "./kubernetes/gcp-provider.yaml" | sed "s/#PROJECTNAME#/${project}/g")
 echo "${template}" | kubectl apply -f -
 

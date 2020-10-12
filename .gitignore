@@ -17,3 +17,4 @@ account.json
 pyvenv.cfg
 .venv
 pip-selfcheck.json
+**.iso
