@@ -1,0 +1,114 @@
+variant: fcos
+version: 1.0.0
+systemd:
+  units:
+  - name: run-coreos-installer.service
+    enabled: true
+    contents: |
+      [Unit]
+      After=network-online.target
+      Wants=network-online.target
+      Before=systemd-user-sessions.service
+      OnFailure=emergency.target
+      OnFailureJobMode=replace-irreversibly
+      [Service]
+      RemainAfterExit=yes
+      Type=oneshot
+      ExecStart=/usr/local/bin/run-coreos-installer
+      ExecStartPost=/usr/bin/systemctl --no-block poweroff
+      StandardOutput=kmsg+console
+      StandardError=kmsg+console
+      [Install]
+      WantedBy=multi-user.target
+storage:
+  files:
+    - path: /usr/local/bin/run-coreos-installer
+      mode: 0755
+      contents:
+        inline: |
+          #!/usr/bin/bash
+          set -x
+          main() {
+              ignition_file='/home/core/config.ign'
+              image_url='https://builds.coreos.fedoraproject.org/prod/streams/stable/builds/32.20201004.3.0/x86_64/fedora-coreos-32.20201004.3.0-metal.x86_64.raw.xz'
+              firstboot_args='console=tty0'
+              if [ -b /dev/sda ]; then
+                  install_device='/dev/sda'
+              elif [ -b /dev/nvme0 ]; then
+                  install_device='/dev/nvme0'
+              else
+                  echo "Can't find appropriate device to install to" 1>&2
+                  poststatus 'failure'
+                  return 1
+              fi
+              cmd="coreos-installer install --firstboot-args=${firstboot_args}"
+              cmd+=" --image-url ${image_url} --ignition=${ignition_file}"
+              cmd+=" ${install_device}"
+              if $cmd; then
+                  echo "Install Succeeded!"
+                  return 0
+              else
+                  echo "Install Failed!"
+                  return 1
+              fi
+          }
+          main
+    - path: /home/core/config.ign
+      contents:
+        inline: |
+          {
+            "ignition": {
+              "version": "3.0.0"
+            },
+            "passwd": {
+              "users": [
+                {
+                  "name": "core",
+                  "sshAuthorizedKeys": [
+                    "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCerzGGXd3Dg0Y4KDu8eIoGAGk+GdHJGWB6ye4p0AVBbWPbeSDS9yGh9iH3uA44YFhgqdkibHwDg3h/prXN//pcXkOlH53fotglMWY2OefF37gp/Q6FgNZ4sCeGjPU5Wtu2pzN+xbItolRAYmk+ePlezoawnRQdZeQnNjSEvdRE7dppS1WpvJXWx7Uhk5088iZsjrcfMIa2ZKz76jod5CvlDwAb1EkJGmojB5y/DWZI4s//mmgjW/XSSzncxUC7pbrrQ4MLGlz86a0VBzyz3B776p8NFf2yGr3FkVf1zpA00RJ8Oka7whJqXyKkTFmMstQg1ReeFbla68Rlp+TlIsKNx8BWXCDTqEO6jOhRhkhCHRWnGthpZa6YGX67ala4NHLyR7TZJJX95nff0EPd2uB5lr19vjB65+bd/tmkcAK7VT3SMxO9jgngYl4+8g06uUI9OZmpH49bHeoHdmybKeu+AtIaImtFZFnQgXau++Nzq730jenTinR+a5viZ+iP7M8= leonardo@devops.cr"
+                  ]
+                }
+              ]
+            },
+            "storage": {
+              "files": [
+                {
+                  "path": "/usr/local/bin/run-k3s-prereq-installer",
+                  "contents": {
+                    "source": "data:,%23!%2Fusr%2Fbin%2Fenv%20sh%0Amain()%20%7B%0A%20%20rpm-ostree%20install%20https%3A%2F%2Frpm.rancher.io%2Fk3s-selinux-0.1.1-rc1.el7.noarch.rpm%0A%20%20return%200%0A%7D%0Amain%0A"
+                  },
+                  "mode": 493
+                },
+                {
+                  "path": "/usr/local/bin/run-k3s-installer",
+                  "contents": {
+                    "source": "data:,%23!%2Fusr%2Fbin%2Fenv%20sh%0Amain()%20%7B%0A%20%20export%20K3S_KUBECONFIG_MODE%3D%22644%22%0A%20%20export%20INSTALL_K3S_EXEC%3D%22%20--no-deploy%20servicelb%20--no-deploy%20traefik%22%0A%0A%20%20curl%20-sfL%20https%3A%2F%2Fget.k3s.io%20%7C%20sh%20-%0A%20%20return%200%0A%7D%0Amain%0A"
+                  },
+                  "mode": 493
+                }
+              ]
+            },
+            "systemd": {
+              "units": [
+                {
+                  "dropins": [
+                    {
+                      "contents": "[Service]\nExecStart=\nExecStart=-/usr/sbin/agetty --autologin core --noclear %I $TERM\n",
+                      "name": "autologin-core.conf"
+                    }
+                  ],
+                  "name": "getty@tty1.service"
+                },
+                {
+                  "contents": "[Unit]\nAfter=network-online.target\nWants=network-online.target\nBefore=systemd-user-sessions.service\nOnFailure=emergency.target\nOnFailureJobMode=replace-irreversibly\nConditionPathExists=!/var/lib/k3s-prereq-installed\n[Service]\nRemainAfterExit=yes\nType=oneshot\nExecStart=/usr/local/bin/run-k3s-prereq-installer\nExecStartPost=/usr/bin/touch /var/lib/k3s-prereq-installed\nExecStartPost=/usr/bin/systemctl --no-block reboot\nStandardOutput=kmsg+console\nStandardError=kmsg+console\n[Install]\nWantedBy=multi-user.target\n",
+                  "enabled": true,
+                  "name": "run-k3s-prereq-installer.service"
+                },
+                {
+                  "contents": "[Unit]\nAfter=network-online.target\nWants=network-online.target\nBefore=systemd-user-sessions.service\nOnFailure=emergency.target\nOnFailureJobMode=replace-irreversibly\nConditionPathExists=/var/lib/k3s-prereq-installed\nConditionPathExists=!/var/lib/k3s-installed\n[Service]\nRemainAfterExit=yes\nType=oneshot\nExecStart=/usr/local/bin/run-k3s-installer\nExecStartPost=/usr/bin/touch /var/lib/k3s-installed\nStandardOutput=kmsg+console\nStandardError=kmsg+console\n[Install]\nWantedBy=multi-user.target\n",
+                  "enabled": true,
+                  "name": "run-k3s-installer.service"
+                }
+              ]
+            }
+          }

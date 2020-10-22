@@ -1,0 +1,16 @@
+---
+server:
+  extraArgs:
+    - --insecure
+  ingress:
+    tls:
+      - hosts:
+          - argocd.gitops.experiments.murillodigital.com
+        secretName: argocd-tls
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      kubernetes.io/tls-acme: "true"
+    hosts:
+      - argocd.gitops.experiments.murillodigital.com
+...
