@@ -26,6 +26,8 @@ jobs:
             ref: 'main',
             inputs: {
               pr_number: "1234",
-              source_branch: "some_branch"
+              source_branch: "some_branch",
+              sha: "awsdkjh1234"
             }
-          })
+          });
+          console.log(context);
