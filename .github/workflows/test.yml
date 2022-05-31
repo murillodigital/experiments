@@ -25,8 +25,8 @@ jobs:
             workflow_id: 'commercial-feature-create.yml',
             ref: 'main',
             inputs: {
-              pr_number: context.payload.number,
-              source_branch: context.ref,
-              sha: context.sha
+              pr_number: String(context.payload.number),
+              source_branch: String(context.ref),
+              sha: String(context.sha)
             }
           })
