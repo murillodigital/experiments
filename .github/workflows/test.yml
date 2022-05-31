@@ -25,9 +25,8 @@ jobs:
             workflow_id: 'commercial-feature-create.yml',
             ref: 'main',
             inputs: {
-              pr_number: "1234",
-              source_branch: "some_branch",
-              sha: "awsdkjh1234"
+              pr_number: context.payload.number,
+              source_branch: context.payload.ref,
+              sha: context.payload.sha
             }
           });
-          console.log(context);
