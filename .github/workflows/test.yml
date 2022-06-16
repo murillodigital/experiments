@@ -1,6 +1,12 @@
 on:
-  pull_request:
-    types: [opened, closed, reopened]
+  create:
+    branches:    
+        - 'feature/**'
+        - 'epic/**'
+  push:
+    branches:    
+        - 'feature/**'
+        - 'epic/**'
 
 jobs:
   printJob:    
