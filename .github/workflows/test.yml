@@ -25,14 +25,24 @@ jobs:
       with:
         github-token: ${{ secrets.PAT }}
         script: |
+          const reference = String(context.ref).split("/");
+          const nameComponents = reference.slice(-2);
+          const featureOrEpic = nameComponents[0];
+          const featureIdentifier = nameComponents[1].replace(/[^a-zA-Z0-9\-]/g, '');
+          const shortSha = String(context.sha).slice(0, 7);
+          const imageTag = `${featureOrEpic}-${featureIdentifier}--${shortSha}`;
           await github.rest.actions.createWorkflowDispatch({
             owner: 'placeit-envato',
             repo: 'providentia',
             workflow_id: 'commercial-feature-create.yml',
             ref: 'main',
             inputs: {
-              pr_number: String(context.payload.number),
-              source_branch: String(context.ref),
-              sha: String(context.sha)
+              environment: 'feature',
+              applicationName: 'commercial',
+              applicationSuffix: String(context.sha),
+              namespace: featureIdentifier,
+              image: `025192112846.dkr.ecr.us-east-1.amazonaws.com/commercial:${imageTag}`,
+              hostname: `${featureIdentifier}.feature.placeitcode.net`,
+              revision: String(context.ref)
             }
           })
