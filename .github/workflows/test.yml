@@ -39,7 +39,7 @@ jobs:
             inputs: {
               environment: 'feature',
               applicationName: 'commercial',
-              applicationSuffix: String(context.sha),
+              applicationSuffix: featureIdentifier,
               namespace: featureIdentifier,
               image: `025192112846.dkr.ecr.us-east-1.amazonaws.com/commercial:${imageTag}`,
               hostname: `${featureIdentifier}.feature.placeitcode.net`,
