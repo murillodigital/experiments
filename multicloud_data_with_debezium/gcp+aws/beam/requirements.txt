@@ -53,7 +53,7 @@ pbr==5.4.5
 pep517==0.8.2
 pg8000==1.16.5
 progress==1.5
-protobuf==3.15.0
+protobuf==3.18.3
 pyarrow==0.17.1
 pyasn1==0.4.8
 pyasn1-modules==0.2.8
