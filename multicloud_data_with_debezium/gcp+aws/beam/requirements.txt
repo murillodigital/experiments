@@ -1,4 +1,4 @@
-wheel==0.34.2
+wheel==0.38.1
 apache-beam==2.23.0
 appdirs==1.4.3
 avro-python3==1.9.2.1
